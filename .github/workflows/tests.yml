@@ -1,0 +1,16 @@
+name: Test rules and sheets
+on:
+  push:
+  pull_request:
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/preflight.py --stage core
+      - run: python tools/generate.py
+      - run: git diff --exit-code -- src/combat_golf/generated_rules.py golf-plugin/GeneratedRules.cs
+      - run: PYTHONPATH=src python -m unittest discover -s tests -v
