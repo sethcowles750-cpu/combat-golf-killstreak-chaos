@@ -30,7 +30,10 @@ jobs:
                   rel = Path(item.filename)
                   if rel.is_absolute() or ".." in rel.parts or (item.external_attr >> 16 & 0o170000) == stat.S_IFLNK:
                       raise SystemExit(f"Unsafe entry in source archive: {item.filename}")
-              z.extractall(".")
+              for item in z.infolist():
+                  if item.filename == ".github/workflows/tests.yml":
+                      continue  # GitHub Actions' built-in token cannot push new workflow files
+                  z.extract(item, ".")
           archive.unlink()
           PY
       - name: Commit unpacked project source
