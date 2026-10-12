@@ -1,0 +1,6 @@
+[
+  {"id":"mwiii_kill", "event":"mwiii_kill", "source_game":"mwiii", "condition":"valid_kill", "points":1},
+  {"id":"birdie", "event":"golf_hole_completed", "source_game":"golf", "condition":"birdie", "points":2},
+  {"id":"eagle", "event":"golf_hole_completed", "source_game":"golf", "condition":"eagle", "points":3},
+  {"id":"hole_in_one", "event":"golf_hole_completed", "source_game":"golf", "condition":"hole_in_one", "points":5}
+]

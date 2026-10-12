@@ -1,0 +1,8 @@
+[
+  {"id":"mwiii_kill_feed", "game":"mwiii", "event":"mwiii_kill", "implementation":"verified_and_permitted_game_event_adapter_needed", "verified":false},
+  {"id":"golf_hole_feed", "game":"golf", "event":"golf_hole_completed", "implementation":"game_assembly_hole_completion_hook_needed", "verified":false},
+  {"id":"golf_ball_mapping", "game":"golf", "event":"player_ball_found", "implementation":"map_golf_player_id_to_own_ball_rigidbody", "verified":false},
+  {"id":"golf_effect_application", "game":"golf", "event":"cast_powerup", "implementation":"network_safe_ball_physics_and_guidance_hook_needed", "verified":false},
+  {"id":"golf_multiplayer_sync", "game":"golf", "event":"joined_golf_lobby", "implementation":"verify_player_identity_and_host_sync_using_game_session", "verified":false},
+  {"id":"melty_one_click", "game":"both", "event":"launch", "implementation":"game_info_validate_recipe_one_click_check_and_release_test_needed", "verified":false}
+]

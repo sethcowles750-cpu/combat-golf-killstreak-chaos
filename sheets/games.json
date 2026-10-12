@@ -1,0 +1,4 @@
+[
+  {"id":"golf", "name":"Golf With Your Friends", "melty_slug":"pc-golf-with-your-friends", "role":"primary", "install_verified":false, "engine":"Unity (official upgrade confirmed; Mono vs IL2CPP unverified)", "in_game_hook_verified":false},
+  {"id":"mwiii", "name":"Call of Duty: Modern Warfare III (2023)", "melty_slug":"pc-call-of-duty-modern-warfare-iii", "role":"companion", "install_verified":false, "engine":"Proprietary Call of Duty engine; accessible kill event source unverified", "in_game_hook_verified":false}
+]

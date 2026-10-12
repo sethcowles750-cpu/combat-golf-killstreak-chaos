@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=65"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "combat-golf-killstreak-chaos"
+version = "0.1.0.dev0"
+description = "Source-only development rules and event relay for a MWIII + Golf With Your Friends mashup"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "uav", "name": "UAV / Tactical Vision", "points": 2,
+    "target": "self", "effect": "guidance_overlay", "duration_seconds": 8,
+    "strength": 1.0, "source_game": "mwiii", "cooldown_seconds": 5,
+    "description": "Preview a recommended aiming direction for your next putt."
+  },
+  {
+    "id": "cruise_missile", "name": "Cruise Missile / Ball Strike", "points": 4,
+    "target": "opponent", "effect": "impulse", "duration_seconds": 0,
+    "strength": 12.0, "source_game": "mwiii", "cooldown_seconds": 10,
+    "description": "Knock a rival ball off its line unless it has Juggernaut protection."
+  },
+  {
+    "id": "juggernaut", "name": "Juggernaut / Armored Ball", "points": 6,
+    "target": "self", "effect": "shield", "duration_seconds": 30,
+    "strength": 1.0, "source_game": "mwiii", "cooldown_seconds": 15,
+    "description": "Block the next incoming Cruise Missile during the protection window."
+  }
+]
