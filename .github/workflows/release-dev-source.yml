@@ -25,7 +25,7 @@ jobs:
       - name: Package development source
         shell: bash
         run: |
-          git archive --format=zip --output=Combat-Golf-v0.1.0-dev.1-SOURCE-ONLY.zip HEAD
+          git archive --format=zip --output=Combat-Golf-v0.2.0-dev.1-SOURCE-ONLY.zip HEAD
       - name: Create GitHub pre-release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -34,19 +34,19 @@ jobs:
           cat > release-notes.md <<'NOTES'
           ## Development source ONLY. Not a playable mod.
 
-          This is a source-code pre-release for Combat Golf: Killstreak Chaos.
-          It contains the tested Python scoring rules and local two-client development event relay, JSON rule sheets, uncompiled Unity/BepInEx plugin scaffold, test suite, and illustrative melty.draft.json.
+          This is the SINGLE-PLAYER source-code pre-release for Combat Golf: Killstreak Chaos. Multiplayer has been removed completely.
+          It contains the tested Python scoring rules and one-player localhost development bridge, JSON rule sheets, uncompiled Unity/BepInEx plugin scaffold, test suite, and illustrative melty.draft.json.
 
-          **Not implemented or verified:** real Modern Warfare III elimination events, real Golf With Your Friends scoring and ball physics hooks, online game multiplayer, a compiled/installable plugin, Melty one-click installation, and gameplay capture.
+          **Not implemented or verified:** real Modern Warfare III elimination events, real Golf With Your Friends scoring and ball physics hooks, real in-game solo physics/hazard/aim effects, a compiled/installable plugin, Melty one-click installation, and gameplay capture.
 
-          **Do not import this release into Melty as a working mashup.** It does not install or run inside either game.
+          **Do not import this single-player source release into Melty as a working mashup.** It does not install or run inside either game.
           Both game installations will be required by the planned finished mod. No official game assets are included.
 
-          License: MIT. Community remixing permitted.
+          Mode: Solo ONLY. No friends, opponents, lobbies or multiplayer join system.\n          License: MIT. Community remixing permitted.
           NOTES
-          gh release create v0.1.0-dev.1 \
-            Combat-Golf-v0.1.0-dev.1-SOURCE-ONLY.zip \
+          gh release create v0.2.0-dev.1 \
+            Combat-Golf-v0.2.0-dev.1-SOURCE-ONLY.zip \
             --target "${GITHUB_SHA}" \
             --prerelease \
-            --title "v0.1.0-dev.1 | SOURCE ONLY (not playable)" \
+            --title "v0.2.0-dev.1 | SOLO SOURCE ONLY (not playable)" \
             --notes-file release-notes.md
