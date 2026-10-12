@@ -1,38 +1,51 @@
 {
-  "_notice": "ILLUSTRATIVE MELTY RECIPE ONLY: not validated against Melty API; do NOT rename to melty.json or submit as a release until every gate passes.",
+  "_notice": "DRAFT ONLY: single-player source prototype, unvalidated installation mappings, no playable build.",
   "project": {
-    "title": "Combat Golf: Killstreak Chaos",
-    "tagline": "Earn COD killstreak points through eliminations and golf shots, then ruin your friends' putts.",
-    "version": "0.1.0-dev",
+    "title": "Combat Golf: Killstreak Chaos | Solo Edition",
+    "tagline": "Earn streak points with MWIII kills and golf scores, then activate solo power-ups.",
+    "version": "0.2.0-dev",
     "license": "MIT",
     "remixAllowed": true,
-    "multiplayer": true,
-    "status": "source-only, not playable"
+    "multiplayer": false,
+    "status": "source-only, single-player, not playable"
   },
   "proposedRecipe": {
     "games": [
-      {"slug": "pc-golf-with-your-friends", "role": "primary"},
-      {"slug": "pc-call-of-duty-modern-warfare-iii", "role": "companion"}
+      {
+        "slug": "pc-golf-with-your-friends",
+        "role": "primary"
+      },
+      {
+        "slug": "pc-call-of-duty-modern-warfare-iii",
+        "role": "companion"
+      }
     ],
     "together": true,
-    "launch": {"kind": "game"},
+    "launch": {
+      "kind": "game"
+    },
     "componentIntent": [
-      {"fileName": "CombatGolf.dll", "from": "unbuilt / untested", "target": "{game}/BepInEx/plugins/CombatGolf.dll", "loader": "verify required loader with game_info"},
-      {"fileName": "CombatGolfBridge.zip", "from": "unbuilt / untested", "target": "MELTY-APP-LOCAL", "loader": "one-click Python-runtime-free executable required"}
+      {
+        "fileName": "CombatGolf.dll",
+        "from": "unbuilt / untested",
+        "target": "{game}/BepInEx/plugins/CombatGolf.dll",
+        "loader": "verify required loader with game_info"
+      },
+      {
+        "fileName": "CombatGolfBridge.zip",
+        "from": "unbuilt / untested",
+        "target": "MELTY-APP-LOCAL",
+        "loader": "one-click Python-runtime-free executable required"
+      }
     ],
-    "companionFolderReference": "{game:pc-call-of-duty-modern-warfare-iii}",
-    "multiplayerIntent": {
-      "type": "Playing together",
-      "join": "NOT IMPLEMENTED / no join address or verified game-session synchronization"
-    }
+    "companionFolderReference": "{game:pc-call-of-duty-modern-warfare-iii}"
   },
   "releaseBlockers": [
     "Access actual installed game files and determine loader/runtime and MWIII game-event source",
     "Implement a legitimate MWIII kill-event integration without bypassing protections",
     "Implement and verify actual golf-hole callbacks and multiplayer ball effects",
     "Build the plugin and package a one-click bridge runtime for Windows",
-    "Get Melty game_info and setup_multiplayer outputs and convert this design to the real recipe schema",
-    "Run Melty inspect_package, validate_recipe, one_click_check and two-client game tests",
-    "Record genuine in-game media and pass the Melty release test"
+    "Record genuine in-game media and pass the Melty release test",
+    "Verify the solo game session, both installed games, real MWIII kills, golf actions and one-click Melty launch"
   ]
 }

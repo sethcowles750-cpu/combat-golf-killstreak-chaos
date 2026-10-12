@@ -14,7 +14,7 @@ async def main_async(args):
         while (line := await reader.readline()):
             print('FROM HOST', line.decode().strip(), flush=True)
     task = asyncio.create_task(receive())
-    print('DEV SIMULATION ONLY: commands: kill PLAYER, hole PLAYER HOLE_ID STROKES PAR, cast POWER [TARGET], state, quit')
+    print('DEV SIMULATION ONLY: commands: kill PLAYER, hole PLAYER HOLE_ID STROKES PAR, cast POWER, state, quit')
     counter = 0
     try:
         while True:
@@ -27,8 +27,8 @@ async def main_async(args):
                 req = {'type':'event', 'payload':{'event_id':f'devkill-{counter}', 'event':'mwiii_kill','player':parts[1]}}
             elif parts[0] == 'hole' and len(parts) == 5 and args.role == 'adapter':
                 req = {'type':'event', 'payload':{'event_id':f'devhole-{counter}', 'event':'golf_hole_completed','player':parts[1], 'hole_id':parts[2], 'strokes':int(parts[3]), 'par':int(parts[4])}}
-            elif parts[0] == 'cast' and len(parts) in (2,3) and args.role == 'player':
-                req = {'type':'cast', 'powerup':parts[1], 'target':parts[2] if len(parts) == 3 else None}
+            elif parts[0] == 'cast' and len(parts) == 2 and args.role == 'player':
+                req = {'type':'cast', 'powerup':parts[1]}
             elif parts[0] == 'state': req = {'type':'state'}
             else:
                 print('Invalid command or role'); continue

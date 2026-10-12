@@ -21,7 +21,6 @@ namespace CombatGolf
         [Serializable] private class GameEventPacket { public string type = "event"; public GameEvent payload; }
         [Serializable] private class Incoming { public string type; public string player; public string target; public string powerup; public string effect; public bool blocked; public float strength; public int duration_seconds; public int points_remaining; public string message; }
         private ConfigEntry<string> _playerId;
-        private ConfigEntry<string> _opponentId;
         private ConfigEntry<bool> _hostGolfAdapter;
         private readonly ConcurrentQueue<string> _inbox = new ConcurrentQueue<string>();
         private readonly object _writeLock = new object();
@@ -37,8 +36,7 @@ namespace CombatGolf
         private void Awake()
         {
             _playerId = Config.Bind("Development", "PlayerId", "alpha", "Must match the host relay's actual player ID; not auto-synced to Golf yet.");
-            _opponentId = Config.Bind("Development", "OpponentId", "bravo", "Development-only target ID for Cruise Missile.");
-            _hostGolfAdapter = Config.Bind("Development", "HostGolfAdapter", false, "Host only: send verified hole events once a game-specific hook is added.");
+            _hostGolfAdapter = Config.Bind("Development", "SoloGolfAdapter", false, "Send verified solo game events once the correct game hooks exist.");
             string secret = Environment.GetEnvironmentVariable("COMBAT_GOLF_DEV_SECRET");
             if (String.IsNullOrEmpty(secret))
             {
@@ -86,19 +84,21 @@ namespace CombatGolf
                     Incoming msg = JsonUtility.FromJson<Incoming>(line);
                     if (msg.type == "welcome") _status = "Connected (development only)";
                     else if (msg.type == "error") _status = "Relay error: " + msg.message;
+                    else if (msg.type == "hazard")
+                    {
+                        _lastAction = msg.blocked ? "Hazard shield event (IN-GAME HOOK PENDING)" : "Hazard detected in simulation";
+                    }
                     else if (msg.type == "powerup")
                     {
                         if (msg.player == _playerId.Value) _streakBalance = msg.points_remaining;
-                        if (msg.blocked) _lastAction = "Cruise Missile intercepted by Juggernaut";
-                        else _lastAction = msg.powerup + " -> " + msg.target + " (PHYSICS HOOK PENDING)";
-                        // IMPORTANT: Do not fake game physics. A verified adapter needs to
-                        // locate the actual target ball, handle ownership and replicate effects.
+                        _lastAction = msg.powerup + " -> own ball (IN-GAME EFFECT UNIMPLEMENTED)";
+                        // Actual ball physics and aim effects require verified game hooks.
                     }
                 }
                 catch (Exception ex) { Logger.LogWarning("Invalid relay packet: " + ex.Message); }
             }
             if (Input.GetKeyDown(KeyCode.F6)) TryCast("uav", null);
-            if (Input.GetKeyDown(KeyCode.F7)) TryCast("cruise_missile", _opponentId.Value);
+            if (Input.GetKeyDown(KeyCode.F7)) TryCast("cruise_missile", null);
             if (Input.GetKeyDown(KeyCode.F8)) TryCast("juggernaut", null);
         }
 
@@ -129,7 +129,7 @@ namespace CombatGolf
         private void OnGUI()
         {
             // This is a genuine Unity overlay scaffold but NOT verified in GWYF.
-            GUI.Box(new Rect(12, 12, 480, 103), "COMBAT GOLF [SOURCE-ONLY DEV PLUGIN]");
+            GUI.Box(new Rect(12, 12, 480, 103), "COMBAT GOLF SOLO [SOURCE-ONLY DEV PLUGIN]");
             GUI.Label(new Rect(22, 35, 460, 23), _status);
             GUI.Label(new Rect(22, 55, 460, 23), "F6 UAV | F7 Cruise Missile | F8 Juggernaut | balance: " + _streakBalance);
             GUI.Label(new Rect(22, 75, 460, 34), _lastAction);

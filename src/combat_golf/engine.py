@@ -34,6 +34,8 @@ class Match:
     def add_player(self, player_id: str) -> dict:
         if not isinstance(player_id, str) or not (1 <= len(player_id) <= 32) or not all(c.isalnum() or c in '_-' for c in player_id):
             raise GameRuleError('player ID must be 1-32 letters, digits, hyphens or underscores')
+        if self.players and player_id not in self.players:
+            raise GameRuleError('solo session allows only one player')
         if player_id not in self.players:
             self.players[player_id] = Player(id=player_id)
         return self.state()
@@ -49,7 +51,7 @@ class Match:
             },
         }
 
-    def record_event(self, event: dict[str, Any]) -> dict:
+    def record_event(self, event: dict[str, Any], now: float | None = None) -> dict:
         """Trusted adapter supplies unique event_id, event, player and event-specific data."""
         if not isinstance(event, dict):
             raise GameRuleError('event must be an object')
@@ -88,8 +90,20 @@ class Match:
             else:
                 label = 'par_or_worse'
             points = SCORING[label]['points'] if label in SCORING else 0
+        elif kind == 'golf_hazard_hit':
+            hazard_id = event.get('hazard_id')
+            if not isinstance(hazard_id, str) or not hazard_id.strip() or len(hazard_id)>80:
+                raise GameRuleError('hazard requires a valid hazard_id')
+            t = monotonic() if now is None else now
+            blocked = member.shields_until > t
+            if blocked:
+                member.shields_until = 0.0
+            self.event_ids.add(event_id)
+            self.event_sequence += 1
+            return {'type':'hazard','player':player_id,'hazard_id':hazard_id,
+                    'blocked':blocked,'sequence':self.event_sequence}
         else:
-            raise GameRuleError('unknown event (only mwiii_kill / golf_hole_completed)')
+            raise GameRuleError('unknown event (mwiii_kill / golf_hole_completed / golf_hazard_hit)')
         self.event_ids.add(event_id)
         member.points += points
         self.event_sequence += 1
@@ -106,12 +120,9 @@ class Match:
             raise GameRuleError('unknown powerup')
         rule = POWERUPS[powerup_id]
         player = self.players[player_id]
-        if rule['target'] == 'self':
-            if target_id not in (None, player_id):
-                raise GameRuleError('powerup only targets self')
-            target_id = player_id
-        elif target_id not in self.players or target_id == player_id:
-            raise GameRuleError('powerup requires a different, registered opponent')
+        if rule['target'] != 'self' or target_id not in (None, player_id):
+            raise GameRuleError('solo powerups only target your own ball')
+        target_id = player_id
         if player.points < rule['points']:
             raise GameRuleError('not enough streak points')
         previous = player.last_cast.get(powerup_id)
@@ -120,14 +131,11 @@ class Match:
         player.points -= rule['points']
         player.last_cast[powerup_id] = t
         target = self.players[target_id]
-        blocked = powerup_id == 'cruise_missile' and target.shields_until > t
-        if blocked:
-            target.shields_until = 0.0  # one incoming strike consumes the shield
-        elif powerup_id == 'juggernaut':
+        if powerup_id == 'juggernaut':
             target.shields_until = t + rule['duration_seconds']
         self.event_sequence += 1
         return {'type': 'powerup', 'player': player_id, 'target': target_id,
                 'powerup': powerup_id, 'effect': rule['effect'],
                 'duration_seconds': rule['duration_seconds'], 'strength': rule['strength'],
-                'blocked': blocked, 'points_remaining': player.points,
+                'blocked': False, 'points_remaining': player.points,
                 'sequence': self.event_sequence}

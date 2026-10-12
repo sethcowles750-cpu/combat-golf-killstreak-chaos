@@ -1,8 +1,7 @@
-"""Local development relay for the Combat Golf rules.
+"""Single-player loopback development bridge. Not a game multiplayer service.
 
-A single host process owns scores and powerup decisions. Only an adapter
-connected with the local development secret can supply kill/hole events.
-This is NOT a secure remote multiplayer service or a MWIII integration.
+Only one player and one synthetic adapter can attach. This does not read MWIII
+kills or move real golf balls. Do not present it as playable game integration.
 """
 import argparse
 import asyncio
@@ -51,6 +50,10 @@ class Relay:
                 await self.send(writer, {'type':'error','message':'role must be adapter or player'})
                 return
             async with self.lock:
+                if role == 'player' and any(r=='player' for r,_ in self.peers.values()):
+                    raise GameRuleError('solo session already has a connected player')
+                if role == 'adapter' and any(r=='adapter' for r,_ in self.peers.values()):
+                    raise GameRuleError('solo session already has an event adapter')
                 if role == 'player': self.match.add_player(name)
                 self.peers[writer] = (role, name)
                 await self.send(writer, {'type':'welcome','role':role,'player':name,'state':self.match.state()})
@@ -99,7 +102,7 @@ async def run(args):
     if args.host != '127.0.0.1':
         raise SystemExit('Development relay only supports 127.0.0.1; remote hosting not implemented')
     server = await start_server(args.host, args.port, secret)
-    print('DEV ONLY: Combat Golf event relay. No real MWIII or golf hooks connected.', flush=True)
+    print('DEV ONLY: single-player local bridge. No real MWIII or golf hooks connected.', flush=True)
     print(f'Address: {args.host}:{server.sockets[0].getsockname()[1]}', flush=True)
     print(f'Dev secret (keep local; never commit): {secret}', flush=True)
     async with server: await server.serve_forever()

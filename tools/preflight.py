@@ -45,7 +45,7 @@ def check(stage='core'):
     games = {r['id'] for r in rows['games.json']}
     events = {r['event'] for r in rows['scoring.json']}
     effects = {'guidance_overlay', 'impulse', 'shield'}
-    targets = {'self', 'opponent'}
+    targets = {'self'}
     for r in rows['scoring.json']:
         if r['source_game'] not in games: problems.append(f"score {r['id']}: unknown game")
         if not isinstance(r['points'], int) or r['points'] <= 0: problems.append(f"score {r['id']}: invalid points")

@@ -1,7 +1,32 @@
 [
-  {"id":"scoring", "sheet":"scoring.json", "component":"combat_golf.engine", "verified":"core_tests"},
-  {"id":"powerups", "sheet":"powerups.json", "component":"combat_golf.engine", "verified":"core_tests"},
-  {"id":"relay", "sheet":"scoring.json", "component":"combat_golf.server", "verified":"loopback_tests"},
-  {"id":"golf_overlay", "sheet":"powerups.json", "component":"golf-plugin/CombatGolfPlugin.cs", "verified":"pending_game_test"},
-  {"id":"game_events", "sheet":"hooks.json", "component":"golf-plugin/CombatGolfPlugin.cs", "verified":"pending_game_test"}
+  {
+    "id": "scoring",
+    "sheet": "scoring.json",
+    "component": "combat_golf.engine",
+    "verified": "core_tests"
+  },
+  {
+    "id": "powerups",
+    "sheet": "powerups.json",
+    "component": "combat_golf.engine",
+    "verified": "core_tests"
+  },
+  {
+    "id": "solo_bridge",
+    "sheet": "scoring.json",
+    "component": "combat_golf.server",
+    "verified": "single_player_loopback_tests"
+  },
+  {
+    "id": "golf_overlay",
+    "sheet": "powerups.json",
+    "component": "golf-plugin/CombatGolfPlugin.cs",
+    "verified": "pending_game_test"
+  },
+  {
+    "id": "game_events",
+    "sheet": "hooks.json",
+    "component": "golf-plugin/CombatGolfPlugin.cs",
+    "verified": "pending_game_test"
+  }
 ]
