@@ -1,29 +1,31 @@
-# Combat Golf: Killstreak Chaos
+# Combat Golf: Killstreak Chaos | Solo Edition
 
-**GitHub-ready source repository | 0.1.0-dev | MIT, remixing permitted**
+**Single-player only | source prototype v0.2.0-dev | MIT, community remixing permitted**
 
-**STATUS: RULES/RELAY TESTED LOCALLY. THE GAME MOD IS SOURCE-ONLY, UNBUILT AND UNTESTED. NOT READY FOR MELTY PUBLICATION.**
+**NOT PLAYABLE YET.** The solo rules and local-only development bridge have automated tests, but neither game is hooked into the project. This cannot honestly be released on Melty as a one-click mod.
 
-Multiplayer chaos that combines *Golf With Your Friends* with *Call of Duty: Modern Warfare III (2023)*. The intended player experience is: play an actual GWYF round while MWIII runs as a required companion; gain killstreak points from real MWIII eliminations and exceptional golf shots; buy UAV, Cruise Missile or Juggernaut abilities to help yourself or sabotage friends. Melty should eventually install into and launch GWYF as the primary game and also require MWIII, with both games running together. **This behavior is a target design, not a currently working two-game integration.**
+## Planned two-game mashup
 
-## Proposed rules
+The host is **Golf With Your Friends**. **Call of Duty: Modern Warfare III (2023)** is a required companion. A solo player earns points from real MWIII eliminations and golf achievements and spends them on solo golf power-ups. Both installed games will be required; none of their original files are included.
 
-| Award | Points | Source |
+| Scoring event | Points |
+|---|---:|
+| MWIII elimination | +1 |
+| Birdie | +2 |
+| Eagle | +3 |
+| Hole-in-one | +5 |
+
+| Ability | Cost | Planned golf effect |
 |---|---:|---|
-| MWIII elimination | +1 | MWIII (real event source NOT implemented) |
-| Birdie | +2 | Golf (real hole callback NOT implemented) |
-| Eagle or better, other than hole-in-one | +3 | Golf |
-| Hole-in-one | +5 | Golf |
+| UAV / Tactical Vision | 2 | Aiming guidance for the next shot |
+| Cruise Missile / Recovery Blast | 4 | Controlled repositioning impulse on **your own** golf ball |
+| Juggernaut / Hazard Armor | 6 | Protect against one course-hazard hit during 30 seconds |
 
-| Ability | Cost | Intended actual in-game effect |
-|---|---:|---|
-| UAV / Tactical Vision | 2 | Brief aiming guidance overlay |
-| Cruise Missile / Ball Strike | 4 | Knock opponent ball with a physics impulse |
-| Juggernaut / Armored Ball | 6 | Temporarily shield ball from one Cruise Missile |
+The rules engine handles points, cooldowns, replay protection, one-hit hazard shields and **one player per session**. In-game targeting, physics, aim guidance, MWIII event reading and real golf scoring are **not yet implemented**.
 
-Stats, costs, cooldowns and effect properties come from `sheets/*.json`. The Python scoring engine handles deductions, shields, cooldowns, replay protection, and scoring. It **does not** move an actual ball until game hooks are developed.
+## Test the source without either game
 
-## Developer quick start (standard-library Python 3.10+)
+Python 3.10+ required, standard library only.
 
 ```bash
 python tools/preflight.py --stage core
@@ -32,51 +34,33 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 python tools/demo.py
 ```
 
-On Windows PowerShell, replace the `PYTHONPATH=src ...` form with:
+On Windows PowerShell set `$env:PYTHONPATH = "src"` and run `python -m unittest discover -s tests -v`.
 
-```powershell
-$env:PYTHONPATH = "src"
-python -m unittest discover -s tests -v
-```
-
-### Local two-peer event relay simulation
+### Solo loopback developer simulation
 
 ```bash
-# Terminal 1: choose a secret yourself (never commit or share it)
+# Terminal 1
 PYTHONPATH=src python -m combat_golf.server --secret LOCAL_DEV_SECRET
-# Terminals 2 and 3: players
-PYTHONPATH=src python -m combat_golf.dev_client --role player --player alpha --secret LOCAL_DEV_SECRET
-PYTHONPATH=src python -m combat_golf.dev_client --role player --player bravo --secret LOCAL_DEV_SECRET
-# Terminal 4: fake event injector for testing ONLY
+# Terminal 2: only one player accepted
+PYTHONPATH=src python -m combat_golf.dev_client --role player --player solo --secret LOCAL_DEV_SECRET
+# Terminal 3: synthetic event adapter, NOT actual MWIII
 PYTHONPATH=src python -m combat_golf.dev_client --role adapter --secret LOCAL_DEV_SECRET
 ```
 
-From the fake injector, type `kill alpha` four times; from alpha, type `cast cruise_missile bravo`. Both players receive the same authoritative effect event. **No real MWIII activity was detected and no ball was moved**. Shared developer secret and local loopback mean this is not online multiplayer.
+Type `kill solo` four times in the adapter; type `cast cruise_missile` in the player terminal. You'll see a local recovery impulse *command*, not a real moved ball. This is a source test, **not game play**.
 
-## Repository map
+## Contents
 
-- `sheets/`: authoritative rule rows, game roles, subsystems and deliberately unverified hook checklist.
-- `tools/generate.py`: generates matching Python rules and C# power definitions. Never hand-edit generated outputs.
-- `tools/preflight.py`: validates cells, IDs, and references. `--stage release` deliberately fails until all hooks are verified.
-- `src/combat_golf/`: tested local rule engine and development TCP relay; uses no third-party dependencies.
-- `tests/`: scoring, power-ups, replay protection, shield defense, two-client relay tests.
-- `golf-plugin/`: BepInEx/Unity C# **scaffold only**. It may draw a local development HUD if built for a compatible Unity Mono release but has **NO verified golf gameplay hooks**. Do not ship it as a working mod.
-- `melty.draft.json`: **illustrative** roles, companion token, together intent, multiplayer placeholders, and blockers; **not a validated Melty recipe**. Deliberately named `.draft` rather than `melty.json` to avoid misleading one-click import.
-- `docs/RELEASE_GATES.md`: exact work required before Melty one-click release.
-- `docs/PROTOCOL.md`: current protocol and its security/functional limits.
+- `sheets/` authoritative JSON game, scoring, power-up, system and unverified hook specifications
+- `tools/generate.py` generated Python and C# rules
+- `src/combat_golf/` solo point engine and single-player localhost development bridge
+- `tests/` rule and one-player bridge tests
+- `golf-plugin/` uncompiled Unity/BepInEx overlay scaffold (no real golf hooks)
+- `melty.draft.json` illustrative solo layout, **not** valid/tested Melty packaging
+- `docs/RELEASE_GATES.md` remaining prerequisites before public game release
 
-## Build status and safety
+**Mode:** single-player only. No opponent targeting, lobbies, multiplayer synchronization, or friend joining.
 
-- **Tested:** Python scoring engine and local two-player relay simulations.
-- **Not tested:** Unity DLL compilation, MWIII kill detection, GWYF golf state, in-game physics/VFX, in-game multiplayer, install automation, Melty API checks, or screenshots.
-- **Game files:** not included; do not copy official game models, audio, assets, multiplayer code, or community content into this repository. Both games are required in the planned finished mashup.
-- **Melty:** no draft or release has been created on Melty. The game-info/schema checks could not be called in this environment, so do not treat the recipe as validated.
-- **GitHub:** this archive can be uploaded to a new GitHub repository. No repo was created or pushed from this environment.
+**License:** MIT for original Combat Golf code, remixes permitted. Original COD/GWYF content is not distributed. BepInEx is separate and not bundled.
 
-## What needs to happen next
-
-See [release gates](docs/RELEASE_GATES.md). The game files and Melty connector must be accessible from the Windows PC that has both games; then add and verify real game hooks, build the C# mod, test it with two actual clients, and validate its one-click recipe.
-
-## Credits and license
-
-Original prototype source: Combat Golf contributors. Licensed under [MIT](LICENSE); modification and remixing are permitted. No Call of Duty or Golf With Your Friends game assets or trademarks are licensed by this repository. BepInEx is a separate third-party project with its own license and is *not bundled*.
+**Actual release status:** game integration and compilation unverified; no gameplay capture, Melty install test, or one-click validation. Do not upload the source pre-release as a working mod.

@@ -1,19 +1,19 @@
-# Melty listing draft (DO NOT PUBLISH)
+# Melty listing draft (DO NOT PUBLISH YET)
 
-**Title:** Combat Golf: Killstreak Chaos
+**Title:** Combat Golf: Killstreak Chaos | Solo Edition
 
-**Tagline:** Earn COD killstreak points through eliminations and golf shots, then ruin your friends' putts.
+**Tagline:** Earn MWIII killstreak points and golf bonuses, then supercharge your solo golf round.
 
-**Description:** Compete with friends in Golf With Your Friends while Call of Duty: Modern Warfare III runs alongside it. Eliminations, birdies, eagles and hole-in-ones build your streak bank. Spend points on Tactical Vision, Cruise Missile knockbacks or Juggernaut shields. Both games are required in the planned release. Real live event hooks, synchronized ball effects and two-game launch are still under development; this listing is a draft and not yet playable.
+**Description:** Play Golf With Your Friends solo while Modern Warfare III runs as a required companion. Earn streak points from eliminations, birdies, eagles and hole-in-ones. Use UAV aiming assistance, Cruise Missile ball recovery or Juggernaut hazard protection. Real gameplay hooks and one-click launch are under development.
 
-**Primary game:** Golf With Your Friends (installation and loader not verified)
+**Primary game:** Golf With Your Friends
 
-**Companion game:** Call of Duty: Modern Warfare III (2023) (kill feed not verified)
+**Companion:** Call of Duty: Modern Warfare III (2023)
 
-**Multiplayer:** planned, actual game host/join unverified, no maxPlayers established for mod.
+**Mode:** Single-player only. No host/join or multiplayer recipe.
 
-**License / remixing:** MIT, permitted.
+**License:** MIT, community remixes permitted.
 
-**Credits:** Combat Golf contributors; no third-party game assets included.
+**Credits:** Combat Golf contributors; no game assets included.
 
-**Media:** no game screenshots captured. A test simulation is NOT acceptable gameplay media.
+**Gameplay media:** Must be captured from the real built mod in game.

@@ -4,58 +4,58 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'src'))
 from combat_golf.engine import Match, GameRuleError
 
-
-class CombatGolfRules(unittest.TestCase):
+class SoloRulesTests(unittest.TestCase):
     def setUp(self):
-        self.g=Match(); self.g.add_player('alpha'); self.g.add_player('bravo')
-
-    def kill(self, n=1, player='alpha'):
-        for i in range(n): self.g.record_event({'event_id':f'k-{player}-{i}', 'event':'mwiii_kill', 'player':player,'victim':'enemy'})
-
-    def hole(self, strokes, par=4, hole='1', player='alpha'):
-        return self.g.record_event({'event_id':f'h-{player}-{hole}', 'event':'golf_hole_completed', 'player':player,'hole_id':hole,'strokes':strokes,'par':par})
-
+        self.m=Match()
+        self.m.add_player('solo')
+    def kills(self,n=1):
+        for i in range(n):
+            self.m.record_event({'event_id':f'kill-{i}', 'event':'mwiii_kill','player':'solo','victim':'enemy'})
+    def hole(self,n,hole):
+        return self.m.record_event({'event_id':f'h-{hole}', 'event':'golf_hole_completed','player':'solo','hole_id':hole,'strokes':n,'par':4})
+    def hazard(self,hazard_id,at):
+        return self.m.record_event({'event_id':f'hazard-{hazard_id}','event':'golf_hazard_hit','player':'solo','hazard_id':hazard_id},now=at)
+    def test_cannot_add_second_player(self):
+        with self.assertRaisesRegex(GameRuleError,'solo session'):self.m.add_player('bravo')
+        self.assertEqual(len(self.m.players),1)
     def test_joint_scoring(self):
-        self.kill(2)
-        self.assertEqual(self.hole(3)['points_awarded'], 2)
-        self.assertEqual(self.g.players['alpha'].points, 4)
-        self.assertEqual(self.hole(2,hole='2')['points_awarded'], 3)
-        self.assertEqual(self.hole(1,hole='3')['points_awarded'], 5)
-        self.assertEqual(self.hole(4,hole='4')['points_awarded'], 0)
-        self.assertEqual(self.g.players['alpha'].points, 12)
+        self.kills(2)
+        self.assertEqual(self.hole(3,'1')['points_awarded'],2)
+        self.assertEqual(self.hole(2,'2')['points_awarded'],3)
+        self.assertEqual(self.hole(1,'3')['points_awarded'],5)
+        self.assertEqual(self.hole(4,'4')['points_awarded'],0)
+        self.assertEqual(self.m.players['solo'].points,12)
+    def test_recovery_targets_self(self):
+        self.kills(4)
+        result=self.m.cast('solo','cruise_missile',now=100)
+        self.assertEqual(result['target'],'solo')
+        self.assertEqual(result['effect'],'impulse')
+        self.assertEqual(result['points_remaining'],0)
+        with self.assertRaisesRegex(GameRuleError,'own ball'):
+            self.m.cast('solo','cruise_missile','bravo',now=115)
+    def test_juggernaut_blocks_first_course_hazard(self):
+        self.kills(6)
+        self.m.cast('solo','juggernaut',now=100)
+        self.assertTrue(self.hazard('bumper1',105)['blocked'])
+        self.assertFalse(self.hazard('bumper2',106)['blocked'])
+    def test_expired_shield_does_not_block(self):
+        self.kills(6)
+        self.m.cast('solo','juggernaut',now=100)
+        self.assertFalse(self.hazard('fan',131)['blocked'])
+    def test_cooldown_and_balance(self):
+        self.kills(6)
+        self.m.cast('solo','uav',now=100)
+        with self.assertRaisesRegex(GameRuleError,'cooldown'):self.m.cast('solo','uav',now=104)
+        self.m.cast('solo','uav',now=105)
+        self.assertEqual(self.m.players['solo'].points,2)
+    def test_dedup_and_bad_data(self):
+        self.kills(1)
+        with self.assertRaisesRegex(GameRuleError,'duplicate'):self.kills(1)
+        self.hole(3,'1')
+        with self.assertRaisesRegex(GameRuleError,'already scored'):
+            self.m.record_event({'event_id':'new','event':'golf_hole_completed','player':'solo','hole_id':'1','strokes':3,'par':4})
+        with self.assertRaisesRegex(GameRuleError,'valid'):self.hole(True,'2')
+        with self.assertRaisesRegex(GameRuleError,'hazard_id'):
+            self.m.record_event({'event_id':'bad','event':'golf_hazard_hit','player':'solo'})
 
-    def test_spend_points_and_powerup(self):
-        self.kill(4)
-        x = self.g.cast('alpha','cruise_missile','bravo',now=100)
-        self.assertEqual(x['effect'],'impulse')
-        self.assertEqual(x['points_remaining'],0)
-        self.assertFalse(x['blocked'])
-
-    def test_juggernaut_consumes_shield(self):
-        self.kill(6)
-        self.g.cast('alpha','juggernaut',now=100)
-        self.kill(4,'bravo')
-        r=self.g.cast('bravo','cruise_missile','alpha',now=105)
-        self.assertTrue(r['blocked'])
-        self.assertFalse(self.g.state(now=105)['players']['alpha']['shielded'])
-
-    def test_cooldown(self):
-        self.kill(10)
-        self.g.cast('alpha','uav',now=100)
-        with self.assertRaisesRegex(GameRuleError,'cooldown'): self.g.cast('alpha','uav',now=104)
-        self.g.cast('alpha','uav',now=105)
-
-    def test_event_dedup(self):
-        self.kill()
-        with self.assertRaisesRegex(GameRuleError,'duplicate'): self.kill()
-        self.hole(3)
-        with self.assertRaisesRegex(GameRuleError,'already scored'): self.g.record_event({'event_id':'unique','event':'golf_hole_completed','player':'alpha','hole_id':'1','strokes':3,'par':4})
-
-    def test_invalid_inputs(self):
-        self.kill(4)
-        with self.assertRaisesRegex(GameRuleError,'different'): self.g.cast('alpha','cruise_missile','alpha')
-        with self.assertRaisesRegex(GameRuleError,'valid'): self.hole(True)
-        with self.assertRaisesRegex(GameRuleError,'not enough'): self.g.cast('bravo','uav')
-        self.assertEqual(self.g.players['alpha'].points,4)
-
-if __name__ == '__main__':unittest.main()
+if __name__=='__main__':unittest.main()

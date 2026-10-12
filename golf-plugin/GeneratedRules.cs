@@ -12,8 +12,8 @@ namespace CombatGolf {
   internal static class GeneratedRules {
     public static readonly PowerRule[] Powers = new PowerRule[] {
       new PowerRule("uav", "UAV / Tactical Vision", 2, "self", "guidance_overlay", 8, 1.0f, 5),
-      new PowerRule("cruise_missile", "Cruise Missile / Ball Strike", 4, "opponent", "impulse", 0, 12.0f, 10),
-      new PowerRule("juggernaut", "Juggernaut / Armored Ball", 6, "self", "shield", 30, 1.0f, 15),
+      new PowerRule("cruise_missile", "Cruise Missile / Recovery Blast", 4, "self", "impulse", 0, 12.0f, 10),
+      new PowerRule("juggernaut", "Juggernaut / Hazard Armor", 6, "self", "shield", 30, 1.0f, 15),
     };
   }
 }

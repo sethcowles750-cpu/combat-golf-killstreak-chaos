@@ -1,22 +1,14 @@
-# Local development wire protocol v0 (NOT Internet multiplayer)
+# Single-player local development bridge (NOT multiplayer)
 
-UTF-8 JSON Lines over TCP on **127.0.0.1:8765** (all frames under 8192 bytes).
-The server owns the Match scoring state. Every peer sends `hello` first with a local development secret.
+UTF-8 JSON Lines over loopback 127.0.0.1:8765. Exactly one `player` connection and one `adapter` connection can be active. The bridge has no lobby or joining feature.
 
-`{"type":"hello","role":"player","player":"alpha","secret":"LOCAL_SECRET"}`
+- Player hello: `{"type":"hello","role":"player","player":"solo","secret":"LOCAL_SECRET"}`
+- Event adapter hello: `{"type":"hello","role":"adapter","secret":"LOCAL_SECRET"}`
+- Synthetic MWIII test event: `{"type":"event","payload":{"event_id":"kill1","event":"mwiii_kill","player":"solo","victim":"enemy"}}`
+- Synthetic golf event: `{"type":"event","payload":{"event_id":"hole1","event":"golf_hole_completed","player":"solo","hole_id":"1","strokes":3,"par":4}}`
+- Synthetic course hazard: `{"type":"event","payload":{"event_id":"hazard1","event":"golf_hazard_hit","player":"solo","hazard_id":"bumper"}}`
+- Own-ball cast request: `{"type":"cast","powerup":"cruise_missile"}`
 
-`{"type":"hello","role":"adapter","secret":"LOCAL_SECRET"}`
+The bridge emits score, powerup, hazard and state messages. It applies **no actual game physics**. Test input is not proof of any MWIII event feed, and a local TCP exchange is not gameplay in GWYF.
 
-Only an `adapter` may report real-game events. Currently *no adapter reading an installed game exists*; the CLI's `kill` and `hole` commands create **explicitly fake development events**:
-
-`{"type":"event","payload":{"event_id":"unique-session-1","event":"mwiii_kill","player":"alpha","victim":"enemy"}}`
-
-`{"type":"event","payload":{"event_id":"unique-session-2","event":"golf_hole_completed","player":"alpha","hole_id":"course1:1","strokes":3,"par":4}}`
-
-Any connected player may request an ability, but the server authoritatively validates points/cooldowns/targets:
-
-`{"type":"cast","powerup":"cruise_missile","target":"bravo"}`
-
-The server broadcasts `score`, `powerup`, and `state` frames to connected peers; it does not apply Unity physics itself. The game plugin currently displays a development overlay only.
-
-**Threat model:** loopback-only with a shared *developer* secret, no anti-cheat, no identity attestation, no protection from other local processes. This is not a trustworthy public tournament service. For actual multiplayer, bind identities and events to verified game sessions and use the game's legitimate networking/lobby mechanisms.
+Never publish local developer secrets. No multiplayer host/join or public server is supported.
